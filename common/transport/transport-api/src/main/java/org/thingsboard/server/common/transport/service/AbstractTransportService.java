@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,7 @@ import org.thingsboard.server.common.transport.TransportServiceCallback;
 import org.thingsboard.server.gen.transport.TransportProtos;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by ashvayka on 17.10.18.
@@ -48,7 +40,7 @@ public abstract class AbstractTransportService implements TransportService {
     private boolean rateLimitEnabled;
     @Value("${transport.rate_limits.tenant}")
     private String perTenantLimitsConf;
-    @Value("${transport.rate_limits.tenant}")
+    @Value("${transport.rate_limits.device}")
     private String perDevicesLimitsConf;
     @Value("${transport.sessions.inactivity_timeout}")
     private long sessionInactivityTimeout;
@@ -136,6 +128,12 @@ public abstract class AbstractTransportService implements TransportService {
     }
 
     @Override
+    public void process(TransportProtos.SessionInfoProto sessionInfo, TransportProtos.ClaimDeviceMsg msg,
+                        TransportServiceCallback<Void> callback) {
+        registerClaimingInfo(sessionInfo, msg, callback);
+    }
+
+    @Override
     public void reportActivity(TransportProtos.SessionInfoProto sessionInfo) {
         reportActivityInternal(sessionInfo);
     }
@@ -155,6 +153,8 @@ public abstract class AbstractTransportService implements TransportService {
     protected abstract void doProcess(TransportProtos.SessionInfoProto sessionInfo, TransportProtos.ToDeviceRpcResponseMsg msg, TransportServiceCallback<Void> callback);
 
     protected abstract void doProcess(TransportProtos.SessionInfoProto sessionInfo, TransportProtos.ToServerRpcRequestMsg msg, TransportServiceCallback<Void> callback);
+
+    protected abstract void registerClaimingInfo(TransportProtos.SessionInfoProto sessionInfo, TransportProtos.ClaimDeviceMsg msg, TransportServiceCallback<Void> callback);
 
     private SessionMetaData reportActivityInternal(TransportProtos.SessionInfoProto sessionInfo) {
         UUID sessionId = toId(sessionInfo);
@@ -186,15 +186,24 @@ public abstract class AbstractTransportService implements TransportService {
 
     @Override
     public void registerSyncSession(TransportProtos.SessionInfoProto sessionInfo, SessionMsgListener listener, long timeout) {
-        sessions.putIfAbsent(toId(sessionInfo), new SessionMetaData(sessionInfo, TransportProtos.SessionType.SYNC, listener));
-        schedulerExecutor.schedule(() -> {
+        SessionMetaData currentSession = new SessionMetaData(sessionInfo, TransportProtos.SessionType.SYNC, listener);
+        sessions.putIfAbsent(toId(sessionInfo), currentSession);
+
+        ScheduledFuture executorFuture = schedulerExecutor.schedule(() -> {
             listener.onRemoteSessionCloseCommand(TransportProtos.SessionCloseNotificationProto.getDefaultInstance());
             deregisterSession(sessionInfo);
         }, timeout, TimeUnit.MILLISECONDS);
+
+        currentSession.setScheduledFuture(executorFuture);
     }
 
     @Override
     public void deregisterSession(TransportProtos.SessionInfoProto sessionInfo) {
+        SessionMetaData currentSession = sessions.get(toId(sessionInfo));
+        if (currentSession != null && currentSession.hasScheduledFuture()) {
+            log.debug("Stopping scheduler to avoid resending response if request has been ack.");
+            currentSession.getScheduledFuture().cancel(false);
+        }
         sessions.remove(toId(sessionInfo));
     }
 
@@ -278,7 +287,7 @@ public abstract class AbstractTransportService implements TransportService {
             new TbRateLimits(perDevicesLimitsConf);
         }
         this.schedulerExecutor = Executors.newSingleThreadScheduledExecutor();
-        this.transportCallbackExecutor = new ThreadPoolExecutor(0, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        this.transportCallbackExecutor = Executors.newWorkStealingPool(20);
         this.schedulerExecutor.scheduleAtFixedRate(this::checkInactivityAndReportActivity, sessionReportTimeout, sessionReportTimeout, TimeUnit.MILLISECONDS);
     }
 

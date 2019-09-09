@@ -48,7 +48,9 @@
         "paste-reference": "Paste reference",
         "import": "Import",
         "export": "Export",
-        "share-via": "Share via {{provider}}"
+        "share-via": "Share via {{provider}}",
+        "continue": "Continue",
+        "discard-changes": "Discard Changes"
     },
     "aggregation": {
         "aggregation": "Aggregation",
@@ -83,7 +85,22 @@
         "timeout-required": "Timeout is required.",
         "timeout-invalid": "That doesn't look like a valid timeout.",
         "enable-tls": "Enable TLS",
-        "send-test-mail": "Send test mail"
+        "send-test-mail": "Send test mail",
+        "security-settings": "Security settings",
+        "password-policy": "Password policy",
+        "minimum-password-length": "Minimum password length",
+        "minimum-password-length-required": "Minimum password length is required",
+        "minimum-password-length-range": "Minimum password length should be in a range from 5 to 50",
+        "minimum-uppercase-letters": "Minimum number of uppercase letters",
+        "minimum-uppercase-letters-range": "Minimum number of uppercase letters can't be negative",
+        "minimum-lowercase-letters": "Minimum number of lowercase letters",
+        "minimum-lowercase-letters-range": "Minimum number of lowercase letters can't be negative",
+        "minimum-digits": "Minimum number of digits",
+        "minimum-digits-range": "Minimum number of digits can't be negative",
+        "minimum-special-characters": "Minimum number of special characters",
+        "minimum-special-characters-range": "Minimum number of special characters can't be negative",
+        "password-expiration-period-days": "Password expiration period in days",
+        "password-expiration-period-days-range": "Password expiration period in days can't be negative"
     },
     "alarm": {
         "alarm": "Alarm",
@@ -246,7 +263,9 @@
         "select-asset": "Select asset",
         "no-assets-matching": "No assets matching '{{entity}}' were found.",
         "asset-required": "Asset is required",
-        "name-starts-with": "Asset name starts with"
+        "name-starts-with": "Asset name starts with",
+        "import": "Import assets",
+        "asset-file": "Asset file"
     },
     "attribute": {
         "attributes": "Attributes",
@@ -303,6 +322,8 @@
         "type-relations-delete": "All relation deleted",
         "type-alarm-ack": "Acknowledged",
         "type-alarm-clear": "Cleared",
+        "type-login": "Login",
+        "type-logout": "Logout",
         "status-success": "Success",
         "status-failure": "Failure",
         "audit-log-details": "Audit log details",
@@ -653,6 +674,7 @@
         "name": "Name",
         "name-required": "Name is required.",
         "description": "Description",
+        "label": "Label",
         "events": "Events",
         "details": "Details",
         "copyId": "Copy device Id",
@@ -665,10 +687,16 @@
         "is-gateway": "Is gateway",
         "public": "Public",
         "device-public": "Device is public",
-        "select-device": "Select device"
+        "select-device": "Select device",
+        "import": "Import device",
+        "device-file": "Device file"
     },
     "dialog": {
         "close": "Close dialog"
+    },
+    "direction": {
+        "column": "Column",
+        "row": "Row"
     },
     "error": {
         "unable-to-connect": "Unable to connect to the server! Please check your internet connection.",
@@ -767,6 +795,7 @@
         "search": "Search entities",
         "selected-entities": "{ count, plural, 1 {1 entity} other {# entities} } selected",
         "entity-name": "Entity name",
+        "entity-label": "Entity label",
         "details": "Entity details",
         "no-entities-prompt": "No entities found",
         "no-data": "No data to display",
@@ -844,6 +873,7 @@
         "unable-entity-view-device-alias-text": "Device alias '{{entityViewAlias}}' can't be deleted as it used by the following widget(s):<br/>{{widgetsList}}",
         "select-entity-view": "Select entity view",
         "make-public": "Make entity view public",
+        "make-private": "Make entity view private",
         "start-date": "Start date",
         "start-ts": "Start time",
         "end-date": "End date",
@@ -861,7 +891,11 @@
         "attributes-propagation": "Attributes propagation",
         "attributes-propagation-hint": "Entity View will automatically copy specified attributes from Target Entity each time you save or update this entity view. For performance reasons target entity attributes are not propagated to entity view on each attribute change. You can enable automatic propagation by configuring \"copy to view\" rule node in your rule chain and linking \"Post attributes\" and \"Attributes Updated\" messages to the new rule node.",
         "timeseries-data": "Timeseries data",
-        "timeseries-data-hint": "Configure timeseries data keys of the target entity that will be accessible to the entity view. This timeseries data is read-only."
+        "timeseries-data-hint": "Configure timeseries data keys of the target entity that will be accessible to the entity view. This timeseries data is read-only.",
+        "make-public-entity-view-title": "Are you sure you want to make the entity view '{{entityViewName}}' public?",
+        "make-public-entity-view-text": "After the confirmation the entity view and all its data will be made public and accessible by others.",
+        "make-private-entity-view-title": "Are you sure you want to make the entity view '{{entityViewName}}' private?",
+        "make-private-entity-view-text": "After the confirmation the entity view and all its data will be made private and won't be accessible by others."
     },
     "event": {
         "event-type": "Event type",
@@ -1008,6 +1042,8 @@
         "modbus-add-server": "Add server/slave",
         "modbus-add-server-prompt": "Please add server/slave",
         "modbus-transport": "Transport",
+        "modbus-tcp-reconnect": "Automatically reconnect",
+        "modbus-rtu-over-tcp": "RTU over TCP",
         "modbus-port-name": "Serial port name",
         "modbus-encoding": "Encoding",
         "modbus-parity": "Parity",
@@ -1032,7 +1068,6 @@
         "modbus-register-count": "Register count",
         "modbus-register-count-range": "Register count should be a positive value.",
         "modbus-byte-order": "Byte order",
-
         "sync": {
             "status": "Status",
             "sync": "Sync",
@@ -1040,7 +1075,6 @@
             "last-sync-time": "Last sync time",
             "not-available": "Not available"
         },
-
         "export-extensions-configuration": "Export extensions configuration",
         "import-extensions-configuration": "Import extensions configuration",
         "import-extensions": "Import extensions",
@@ -1084,7 +1118,40 @@
     },
     "import": {
         "no-file": "No file selected",
-        "drop-file": "Drop a JSON file or click to select a file to upload."
+        "drop-file": "Drop a JSON file or click to select a file to upload.",
+        "drop-file-csv": "Drop a CSV file or click to select a file to upload.",
+        "column-value": "Value",
+        "column-title": "Title",
+        "column-example": "Example value data",
+        "column-key": "Attribute/telemetry key",
+        "csv-delimiter": "CSV delimiter",
+        "csv-first-line-header": "First line contains column names",
+        "csv-update-data": "Update attributes/telemetry",
+        "import-csv-number-columns-error": "A file should contain at least two columns",
+        "import-csv-invalid-format-error": "Invalid file format. Line: '{{line}}'",
+        "column-type": {
+            "name": "Name",
+            "type": "Type",
+            "column-type": "Column type",
+            "client-attribute": "Client attribute",
+            "shared-attribute": "Shared attribute",
+            "server-attribute": "Server attribute",
+            "timeseries": "Timeseries",
+            "entity-field": "Entity field",
+            "access-token": "Access token"
+        },
+        "stepper-text":{
+            "select-file": "Select a file",
+            "configuration": "Import configuration",
+            "column-type": "Select columns type",
+            "creat-entities": "Creating new entities",
+            "done": "Done"
+        },
+        "message": {
+            "create-entities": "{{count}} new entities were successfully created.",
+            "update-entities": "{{count}} entities were successfully updated.",
+            "error-entities": "There was an error creating {{count}} entities."
+        }
     },
     "item": {
         "selected": "Selected"
@@ -1111,6 +1178,7 @@
         "select": "Select target layout"
     },
     "legend": {
+        "direction": "Legend direction",
         "position": "Legend position",
         "show-max": "Show max value",
         "show-min": "Show min value",
@@ -1134,6 +1202,7 @@
         "remember-me": "Remember me",
         "forgot-password": "Forgot Password?",
         "password-reset": "Password reset",
+        "expired-password-reset-message": "Your credentials has been expired! Please create new password.",
         "new-password": "New password",
         "new-password-again": "New password again",
         "password-link-sent-message": "Password reset link was successfully sent!",
@@ -1290,7 +1359,8 @@
         "metadata-required": "Metadata entries can't be empty.",
         "output": "Output",
         "test": "Test",
-        "help": "Help"
+        "help": "Help",
+        "reset-debug-mode": "Reset debug mode in all nodes"
     },
     "tenant": {
         "tenant": "Tenant",
@@ -1342,7 +1412,8 @@
         "edit": "Edit timewindow",
         "date-range": "Date range",
         "last": "Last",
-        "time-period": "Time period"
+        "time-period": "Time period",
+        "hide": "Hide"
     },
     "user": {
         "user": "User",
@@ -1444,6 +1515,7 @@
         "settings-schema": "Settings schema",
         "datakey-settings-schema": "Data key settings schema",
         "javascript": "Javascript",
+        "js": "JS",
         "remove-widget-type-title": "Are you sure you want to remove the widget type '{{widgetName}}'?",
         "remove-widget-type-text": "After the confirmation the widget type and all related data will become unrecoverable.",
         "remove-widget-type": "Remove widget type",
@@ -1460,6 +1532,7 @@
         "update-dashboard-state": "Update current dashboard state",
         "open-dashboard": "Navigate to other dashboard",
         "custom": "Custom action",
+        "custom-pretty": "Custom action (with HTML template)",
         "target-dashboard-state": "Target dashboard state",
         "target-dashboard-state-required": "Target dashboard state is required",
         "set-entity-from-widget": "Set entity from widget",
@@ -1498,6 +1571,7 @@
         "settings": "Settings",
         "advanced": "Advanced",
         "title": "Title",
+        "title-tooltip": "Title Tooltip",
         "general-settings": "General settings",
         "display-title": "Display title",
         "drop-shadow": "Drop shadow",
@@ -1515,6 +1589,7 @@
         "decimals": "Number of digits after floating point",
         "timewindow": "Timewindow",
         "use-dashboard-timewindow": "Use dashboard timewindow",
+        "display-timewindow": "Display timewindow",
         "display-legend": "Display legend",
         "datasources": "Datasources",
         "maximum-datasources": "Maximum { count, plural, 1 {1 datasource is allowed.} other {# datasources are allowed} }",
@@ -1539,7 +1614,10 @@
         "edit-action": "Edit action",
         "delete-action": "Delete action",
         "delete-action-title": "Delete widget action",
-        "delete-action-text": "Are you sure you want delete widget action with name '{{actionName}}'?"
+        "delete-action-text": "Are you sure you want delete widget action with name '{{actionName}}'?",
+        "display-icon": "Display title icon",
+        "icon-color": "Icon color",
+        "icon-size": "Icon size"
     },
     "widget-type": {
         "import": "Import widget type",
@@ -1548,6 +1626,90 @@
         "create-new-widget-type": "Create new widget type",
         "widget-type-file": "Widget type file",
         "invalid-widget-type-file-error": "Unable to import widget type: Invalid widget type data structure."
+    },
+    "widgets": {
+        "date-range-navigator": {
+            "localizationMap": {
+                "Sun": "Sun",
+                "Mon": "Mon",
+                "Tue": "Tue",
+                "Wed": "Wed",
+                "Thu": "Thu",
+                "Fri": "Fri",
+                "Sat": "Sat",
+                "Jan": "Jan",
+                "Feb": "Feb",
+                "Mar": "Mar",
+                "Apr": "Apr",
+                "May": "May",
+                "Jun": "Jun",
+                "Jul": "Jul",
+                "Aug": "Aug",
+                "Sep": "Sep",
+                "Oct": "Oct",
+                "Nov": "Nov",
+                "Dec": "Dec",
+                "January": "January",
+                "February": "February",
+                "March": "March",
+                "April": "April",
+                "June": "June",
+                "July": "July",
+                "August": "August",
+                "September": "September",
+                "October": "October",
+                "November": "November",
+                "December": "December",
+                "Custom Date Range": "Custom Date Range",
+                "Date Range Template": "Date Range Template",
+                "Today": "Today",
+                "Yesterday": "Yesterday",
+                "This Week": "This Week",
+                "Last Week": "Last Week",
+                "This Month": "This Month",
+                "Last Month": "Last Month",
+                "Year": "Year",
+                "This Year": "This Year",
+                "Last Year": "Last Year",
+                "Date picker": "Date picker",
+                "Hour": "Hour",
+                "Day": "Day",
+                "Week": "Week",
+                "2 weeks": "2 Weeks",
+                "Month": "Month",
+                "3 months": "3 Months",
+                "6 months": "6 Months",
+                "Custom interval": "Custom interval",
+                "Interval": "Interval",
+                "Step size": "Step size",
+                "Ok": "Ok"
+            }
+        },
+        "input-widgets": {
+            "attribute-not-allowed": "Attribute parameter cannot be used in this widget",
+            "date": "Date",
+            "discard-changes": "Discard changes",
+            "entity-attribute-required": "Entity attribute is required",
+            "entity-timeseries-required": "Entity timeseries is required",
+            "not-allowed-entity": "Selected entity cannot have shared attributes",
+            "no-attribute-selected": "No attribute is selected",
+            "no-datakey-selected": "No datakey is selected",
+            "no-entity-selected": "No entity selected",
+            "no-image": "No image",
+            "no-support-web-camera": "No supported web camera",
+            "no-timeseries-selected": "No timeseries selected",
+            "switch-attribute-value": "Switch entity attribute value",
+            "switch-camera": "Switch camera",
+            "switch-timeseries-value": "Switch entity timeseries value",
+            "take-photo": "Take photo",
+            "time": "Time",
+            "timeseries-not-allowed": "Timeseries parameter cannot be used in this widget",
+            "update-failed": "Update failed",
+            "update-successful": "Update successful",
+            "update-attribute": "Update attribute",
+            "update-timeseries": "Update timeseries",
+            "value": "Value"
+        }
     },
     "icon": {
         "icon": "Icon",
@@ -1559,14 +1721,20 @@
         "widget-action": {
             "action-cell-button": "Action cell button",
             "row-click": "On row click",
+            "polygon-click": "On polygon click",
             "marker-click": "On marker click",
-            "tooltip-tag-action": "Tooltip tag action"
+            "tooltip-tag-action": "Tooltip tag action",
+            "node-selected": "On node selected",
+            "element-click": "On HTML element click",
+            "pie-slice-click": "On slice click",
+            "row-double-click": "On row double click"
         }
     },
     "language": {
         "language": "Language",
         "locales": {
-			"fr_FR": "French",
+            "de_DE": "German",
+            "fr_FR": "French",
             "zh_CN": "Chinese",
             "en_US": "English",
             "it_IT": "Italian",
@@ -1574,7 +1742,10 @@
             "ru_RU": "Russian",
             "es_ES": "Spanish",
             "ja_JA": "Japanese",
-            "tr_TR": "Turkish"
+            "tr_TR": "Turkish",
+            "fa_IR": "Persian",
+            "uk_UA": "Ukrainian",
+            "cs_CZ": "Czech"            
         }
     }
 }

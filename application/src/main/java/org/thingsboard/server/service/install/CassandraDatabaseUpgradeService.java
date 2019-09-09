@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package org.thingsboard.server.service.install;
 
 import com.datastax.driver.core.KeyspaceMetadata;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.thingsboard.server.dao.cassandra.CassandraCluster;
@@ -65,6 +67,7 @@ public class CassandraDatabaseUpgradeService implements DatabaseUpgradeService {
     private CassandraCluster cluster;
 
     @Autowired
+    @Qualifier("CassandraInstallCluster")
     private CassandraInstallCluster installCluster;
 
     @Autowired
@@ -252,6 +255,17 @@ public class CassandraDatabaseUpgradeService implements DatabaseUpgradeService {
 
                 break;
             case "2.1.3":
+                break;
+            case "2.3.0":
+                break;
+            case "2.3.1":
+                log.info("Updating schema ...");
+                String updateDeviceTableStmt = "alter table device add label text";
+                try {
+                    cluster.getSession().execute(updateDeviceTableStmt);
+                    Thread.sleep(2500);
+                } catch (InvalidQueryException e) {}
+                log.info("Schema updated.");
                 break;
             default:
                 throw new RuntimeException("Unable to upgrade Cassandra database, unsupported fromVersion: " + fromVersion);

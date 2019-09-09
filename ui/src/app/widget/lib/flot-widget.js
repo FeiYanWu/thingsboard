@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,9 +137,11 @@ export default class TbFlot {
                 });
                 content += dateDiv.prop('outerHTML');
                 if (tbFlot.ctx.tooltipIndividual) {
-                    var seriesHoverInfo = hoverInfo.seriesHover[seriesIndex];
-                    if (seriesHoverInfo) {
-                        content += seriesInfoDivFromInfo(seriesHoverInfo, seriesIndex);
+                    var found = hoverInfo.seriesHover.filter((seriesHover) => {
+                        return seriesHover.index === seriesIndex;
+                    });
+                    if (found && found.length) {
+                        content += seriesInfoDivFromInfo(found[0], seriesIndex);
                     }
                 } else {
                     var seriesDiv = $('<div></div>');
@@ -161,7 +163,7 @@ export default class TbFlot {
                             if (i == hoverInfo.seriesHover.length) {
                                 break;
                             }
-                            seriesHoverInfo = hoverInfo.seriesHover[i];
+                            var seriesHoverInfo = hoverInfo.seriesHover[i];
                             columnContent += seriesInfoDivFromInfo(seriesHoverInfo, seriesIndex);
                         }
                         columnDiv.html(columnContent);
@@ -348,7 +350,7 @@ export default class TbFlot {
                 pie: {
                     show: true,
                     label: {
-                        show: settings.showLabels === true
+                        show: settings.showLabels || settings.showPercentages
                     },
                     radius: settings.radius || 1,
                     innerRadius: settings.innerRadius || 0,
@@ -364,6 +366,8 @@ export default class TbFlot {
                     }
                 }
             }
+            options.grid.clickable = true;
+                
             if (settings.stroke) {
                 options.series.pie.stroke.color = settings.stroke.color || '#fff';
                 options.series.pie.stroke.width = settings.stroke.width || 0;
@@ -371,7 +375,11 @@ export default class TbFlot {
 
             if (options.series.pie.label.show) {
                 options.series.pie.label.formatter = function (label, series) {
-                    return "<div class='pie-label'>" + series.dataKey.label + "<br/>" + Math.round(series.percent) + "%</div>";
+                    return "<div class='pie-label'>" +
+                        (settings.showLabels ? series.dataKey.label : "") +
+                        (settings.showLabels && settings.showPercentages ? "<br/>" : "") +
+                        (settings.showPercentages ? Math.round(series.percent) + "%" : "") +
+                        "</div>";
                 }
                 options.series.pie.label.radius = 3/4;
                 options.series.pie.label.background = {
@@ -438,7 +446,7 @@ export default class TbFlot {
             if (keySettings.showPoints === true) {
                 series.points.show = true;
                 series.points.lineWidth = 5;
-                series.points.radius = 3;
+                series.points.radius = angular.isDefined(keySettings.showPointsRadius) ? keySettings.showPointsRadius : 3;
             }
 
             if (this.chartType === 'line' && this.ctx.settings.smoothLines && !series.points.show) {
@@ -533,7 +541,11 @@ export default class TbFlot {
         yaxis.tickUnits = units;
         yaxis.tickDecimals = tickDecimals;
         yaxis.tickSize = tickSize;
-        yaxis.alignTicksWithAxis = position == "right" ? 1 : null;
+        if (position === "right" && tickSize === null) {
+            yaxis.alignTicksWithAxis = 1;
+        } else {
+            yaxis.alignTicksWithAxis = null;
+        }
         yaxis.position = position;
 
         yaxis.keysInfo = [];
@@ -785,6 +797,11 @@ export default class TbFlot {
                         "type": "boolean",
                         "default": false
                     },
+                    "showPercentages": {
+                        "title": "Show percentages",
+                        "type": "boolean",
+                        "default": false
+                    },
                     "fontColor": {
                         "title": "Font color",
                         "type": "string",
@@ -814,6 +831,7 @@ export default class TbFlot {
                     ]
                 },
                 "showLabels",
+                "showPercentages",
                 {
                     "key": "fontColor",
                     "type": "color"
@@ -936,11 +954,6 @@ export default class TbFlot {
                     "type": "string",
                     "default": null
                 },
-                "titleAngle": {
-                    "title": "Axis title's angle in degrees",
-                    "type": "number",
-                    "default": 0
-                },
                 "color": {
                     "title": "Ticks color",
                     "type": "string",
@@ -972,11 +985,6 @@ export default class TbFlot {
                     "title": "Axis title",
                     "type": "string",
                     "default": null
-                },
-                "titleAngle": {
-                    "title": "Axis title's angle in degrees",
-                    "type": "number",
-                    "default": 0
                 },
                 "color": {
                     "title": "Ticks color",
@@ -1046,7 +1054,6 @@ export default class TbFlot {
             "items": [
                 "xaxis.showLabels",
                 "xaxis.title",
-                "xaxis.titleAngle",
                 {
                     "key": "xaxis.color",
                     "type": "color"
@@ -1062,7 +1069,6 @@ export default class TbFlot {
                 "yaxis.tickSize",
                 "yaxis.showLabels",
                 "yaxis.title",
-                "yaxis.titleAngle",
                 {
                     "key": "yaxis.color",
                     "type": "color"
@@ -1100,6 +1106,11 @@ export default class TbFlot {
                         "title": "Show points",
                         "type": "boolean",
                         "default": false
+                    },
+                    "showPointsRadius": {
+                        "title": "Radius of points",
+                        "type": "number",
+                        "default": 3
                     },
                     "tooltipValueFormatter": {
                         "title": "Tooltip value format function, f(value)",
@@ -1153,6 +1164,7 @@ export default class TbFlot {
                 "showLines",
                 "fillLines",
                 "showPoints",
+                "showPointsRadius",
                 {
                     "key": "tooltipValueFormatter",
                     "type": "javascript"
@@ -1225,16 +1237,23 @@ export default class TbFlot {
 
                     if (tooltipHtml) {
                         tbFlot.ctx.tooltip.html(tooltipHtml)
-                            .css({top: pageY+5, left: 0})
+                            .css({top: 0, left: 0})
                             .fadeIn(200);
 
                         var windowWidth = $( window ).width();  //eslint-disable-line
+                        var windowHeight = $( window ).height();  //eslint-disable-line
                         var tooltipWidth = tbFlot.ctx.tooltip.width();
+                        var tooltipHeight = tbFlot.ctx.tooltip.height();
                         var left = pageX+5;
+                        var top = pageY+5;
                         if (windowWidth - pageX < tooltipWidth + 50) {
                             left = pageX - tooltipWidth - 10;
                         }
+                        if (windowHeight - pageY < tooltipHeight + 20) {
+                            top = pageY - tooltipHeight - 10;
+                        }
                         tbFlot.ctx.tooltip.css({
+                            top: top,
                             left: left
                         });
 
@@ -1295,6 +1314,17 @@ export default class TbFlot {
             };
             this.$element.bind('mouseleave', this.mouseleaveHandler);
         }
+
+        if (!this.flotClickHandler) {
+            this.flotClickHandler =  function (event, pos, item) {
+                if (!tbFlot.ctx.plot) {
+                    return;
+                }
+                tbFlot.onPieSliceClick(event, item);
+            };
+            this.$element.bind('plotclick', this.flotClickHandler);
+        }
+
     }
 
     disableMouseEvents() {
@@ -1326,6 +1356,10 @@ export default class TbFlot {
         if (this.mouseleaveHandler) {
             this.$element.unbind('mouseleave', this.mouseleaveHandler);
             this.mouseleaveHandler = null;
+        }
+        if (this.flotClickHandler) {
+            this.$element.unbind('plotclick', this.flotClickHandler);
+            this.flotClickHandler = null;
         }
     }
 
@@ -1476,6 +1510,17 @@ export default class TbFlot {
         this.pieDataRendered();
         this.ctx.plot.setData(this.pieData);
         this.ctx.plot.draw();
+    }
+
+    onPieSliceClick($event, item) {
+        var descriptors = this.ctx.actionsApi.getActionDescriptors('sliceClick');
+        if ($event && descriptors.length) {
+            $event.stopPropagation();
+            var entityInfo = this.ctx.actionsApi.getActiveEntityInfo();
+            var entityId = entityInfo ? entityInfo.entityId : null;
+            var entityName = entityInfo ? entityInfo.entityName : null;
+            this.ctx.actionsApi.handleWidgetAction($event, descriptors[0], entityId, entityName, item);
+        }
     }
 }
 

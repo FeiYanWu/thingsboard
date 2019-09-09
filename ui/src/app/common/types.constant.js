@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ export default angular.module('thingsboard.types', [])
                 general: 2,
                 authentication: 10,
                 jwtTokenExpired: 11,
+                credentialsExpired: 15,
                 permissionDenied: 20,
                 invalidArguments: 30,
                 badRequestParams: 31,
@@ -212,6 +213,12 @@ export default angular.module('thingsboard.types', [])
                 },
                 "ALARM_CLEAR": {
                     name: "audit-log.type-alarm-clear"
+                },
+                "LOGIN": {
+                    name: "audit-log.type-login"
+                },
+                "LOGOUT": {
+                    name: "audit-log.type-logout"
                 }
             },
             auditLogActionStatus: {
@@ -274,6 +281,16 @@ export default angular.module('thingsboard.types', [])
                 entityViewSearchQuery: {
                     value: 'entityViewSearchQuery',
                     name: 'alias.filter-type-entity-view-search-query'
+                }
+            },
+            direction: {
+                column: {
+                    value: "column",
+                    name: "direction.column"
+                },
+                row: {
+                    value: "row",
+                    name: "direction.row"
                 }
             },
             position: {
@@ -339,6 +356,40 @@ export default angular.module('thingsboard.types', [])
                 rulechain: "RULE_CHAIN",
                 rulenode: "RULE_NODE",
                 entityView: "ENTITY_VIEW"
+            },
+            importEntityColumnType: {
+                name: {
+                    name: 'import.column-type.name',
+                    value: 'name'
+                },
+                type: {
+                    name: 'import.column-type.type',
+                    value: 'type'
+                },
+                clientAttribute: {
+                    name: 'import.column-type.client-attribute',
+                    value: 'CLIENT_ATTRIBUTE'
+                },
+                sharedAttribute: {
+                    name: 'import.column-type.shared-attribute',
+                    value: 'SHARED_ATTRIBUTE'
+                },
+                serverAttribute: {
+                    name: 'import.column-type.server-attribute',
+                    value: 'SERVER_ATTRIBUTE'
+                },
+                timeseries: {
+                    name: 'import.column-type.timeseries',
+                    value: 'TIMESERIES'
+                },
+                entityField: {
+                    name: 'import.column-type.entity-field',
+                    value: 'ENTITY_FIELD'
+                },
+                accessToken: {
+                    name: 'import.column-type.access-token',
+                    value: 'ACCESS_TOKEN'
+                }
             },
             aliasEntityType: {
                 current_customer: "CURRENT_CUSTOMER"
@@ -777,6 +828,10 @@ export default angular.module('thingsboard.types', [])
                 custom: {
                     name: 'widget-action.custom',
                     value: 'custom'
+                },
+                customPretty: {
+                    name: 'widget-action.custom-pretty',
+                    value: 'customPretty'
                 }
             },
             systemBundleAlias: {

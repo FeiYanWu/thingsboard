@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,11 @@ function UserService($http, $q, $rootScope, adminService, dashboardService, time
     }
 
     function logout() {
-        clearJwtToken(true);
+        $http.post('/api/auth/logout', null, {ignoreErrors: true}).then(function success() {
+            clearJwtToken(true);
+        }, function fail() {
+            clearJwtToken(true);
+        });
     }
 
     function clearJwtToken(doLogout) {
@@ -362,6 +366,25 @@ function UserService($http, $q, $rootScope, adminService, dashboardService, time
                     $location.search('publicId', null);
                     deferred.reject();
                 });
+            } else if (locationSearch.accessToken) {
+                var token = locationSearch.accessToken;
+                var refreshToken = locationSearch.refreshToken;
+                $location.search('accessToken', null);
+                if (refreshToken) {
+                    $location.search('refreshToken', null);
+                }
+                try {
+                    updateAndValidateToken(token, 'jwt_token', false);
+                    if (refreshToken) {
+                        updateAndValidateToken(refreshToken, 'refresh_token', false);
+                    } else {
+                        store.remove('refresh_token');
+                        store.remove('refresh_token_expiration');
+                    }
+                } catch (e) {
+                    deferred.reject();
+                }
+                procceedJwtTokenValidate();
             } else {
                 procceedJwtTokenValidate();
             }

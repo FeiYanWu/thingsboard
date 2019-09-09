@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import static org.thingsboard.server.dao.service.Validator.validateId;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(prefix = "audit_log", value = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "audit-log", value = "enabled", havingValue = "true")
 public class AuditLogServiceImpl implements AuditLogService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -247,6 +247,17 @@ public class AuditLogServiceImpl implements AuditLogService {
             case RELATION_DELETED:
                 EntityRelation relation = extractParameter(EntityRelation.class, 0, additionalInfo);
                 actionData.set("relation", objectMapper.valueToTree(relation));
+                break;
+            case LOGIN:
+            case LOGOUT:
+                String clientAddress = extractParameter(String.class, 0, additionalInfo);
+                String browser = extractParameter(String.class, 1, additionalInfo);
+                String os = extractParameter(String.class, 2, additionalInfo);
+                String device = extractParameter(String.class, 3, additionalInfo);
+                actionData.put("clientAddress", clientAddress);
+                actionData.put("browser", browser);
+                actionData.put("os", os);
+                actionData.put("device", device);
                 break;
         }
         return actionData;

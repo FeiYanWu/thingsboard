@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ export default angular.module('thingsboard.utils', [thingsboardTypes])
     .factory('utils', Utils)
     .name;
 
-const varsRegex = /\$\{([^\}]*)\}/g;
+const varsRegex = /\$\{([^}]*)\}/g;
 
 /*@ngInject*/
 function Utils($mdColorPalette, $rootScope, $window, $translate, $q, $timeout, types) {
@@ -120,18 +120,6 @@ function Utils($mdColorPalette, $rootScope, $window, $translate, $q, $timeout, t
     ];
 
     var defaultAlarmDataKeys = [];
-    for (var i=0;i<defaultAlarmFields.length;i++) {
-        var name = defaultAlarmFields[i];
-        var dataKey = {
-            name: name,
-            type: types.dataKeyType.alarm,
-            label: $translate.instant(types.alarmFields[name].name)+'',
-            color: getMaterialColor(i),
-            settings: {},
-            _hash: Math.random()
-        };
-        defaultAlarmDataKeys.push(dataKey);
-    }
 
     var imageAspectMap = {};
 
@@ -312,14 +300,32 @@ function Utils($mdColorPalette, $rootScope, $window, $translate, $q, $timeout, t
         return angular.toJson(getDefaultDatasource(dataKeySchema));
     }
 
+    function initDefaultAlarmDataKeys() {
+        for (var i=0;i<defaultAlarmFields.length;i++) {
+            var name = defaultAlarmFields[i];
+            var dataKey = {
+                name: name,
+                type: types.dataKeyType.alarm,
+                label: $translate.instant(types.alarmFields[name].name)+'',
+                color: getMaterialColor(i),
+                settings: {},
+                _hash: Math.random()
+            };
+            defaultAlarmDataKeys.push(dataKey);
+        }
+    }
+
     function getDefaultAlarmDataKeys() {
+        if (!defaultAlarmDataKeys.length) {
+            initDefaultAlarmDataKeys();
+        }
         return angular.copy(defaultAlarmDataKeys);
     }
 
     function isDescriptorSchemaNotEmpty(descriptor) {
         if (descriptor && descriptor.schema && descriptor.schema.properties) {
             for(var prop in descriptor.schema.properties) {
-                if (descriptor.schema.properties.hasOwnProperty(prop)) {
+                if (Object.prototype.hasOwnProperty.call(descriptor.schema.properties, prop)) {
                     return true;
                 }
             }
@@ -497,8 +503,12 @@ function Utils($mdColorPalette, $rootScope, $window, $translate, $q, $timeout, t
                 label = label.split(variable).join(datasource.entityName);
             } else if (variableName === 'deviceName') {
                 label = label.split(variable).join(datasource.entityName);
+            } else if (variableName === 'entityLabel') {
+                label = label.split(variable).join(datasource.entityLabel);
             } else if (variableName === 'aliasName') {
                 label = label.split(variable).join(datasource.aliasName);
+            } else if (variableName === 'entityDescription') {
+                label = label.split(variable).join(datasource.entityDescription);
             }
             match = varsRegex.exec(pattern);
         }

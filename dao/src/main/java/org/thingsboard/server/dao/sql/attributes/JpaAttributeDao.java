@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,15 @@ public class JpaAttributeDao extends JpaAbstractDaoListeningExecutorService impl
     @Autowired
     private AttributeKvRepository attributeKvRepository;
 
+    @Autowired
+    private AttributeKvInsertRepository attributeKvInsertRepository;
+
     @Override
     public ListenableFuture<Optional<AttributeKvEntry>> find(TenantId tenantId, EntityId entityId, String attributeType, String attributeKey) {
         AttributeKvCompositeKey compositeKey =
                 getAttributeKvCompositeKey(entityId, attributeType, attributeKey);
         return Futures.immediateFuture(
-                Optional.ofNullable(DaoUtil.getData(attributeKvRepository.findOne(compositeKey))));
+                Optional.ofNullable(DaoUtil.getData(attributeKvRepository.findById(compositeKey))));
     }
 
     @Override
@@ -64,7 +67,7 @@ public class JpaAttributeDao extends JpaAbstractDaoListeningExecutorService impl
                                 getAttributeKvCompositeKey(entityId, attributeType, attributeKey))
                         .collect(Collectors.toList());
         return Futures.immediateFuture(
-                DaoUtil.convertDataList(Lists.newArrayList(attributeKvRepository.findAll(compositeKeys))));
+                DaoUtil.convertDataList(Lists.newArrayList(attributeKvRepository.findAllById(compositeKeys))));
     }
 
     @Override
@@ -87,10 +90,11 @@ public class JpaAttributeDao extends JpaAbstractDaoListeningExecutorService impl
         entity.setLongValue(attribute.getLongValue().orElse(null));
         entity.setBooleanValue(attribute.getBooleanValue().orElse(null));
         return service.submit(() -> {
-            attributeKvRepository.save(entity);
+            attributeKvInsertRepository.saveOrUpdate(entity);
             return null;
         });
     }
+
 
     @Override
     public ListenableFuture<List<Void>> removeAll(TenantId tenantId, EntityId entityId, String attributeType, List<String> keys) {
@@ -103,7 +107,7 @@ public class JpaAttributeDao extends JpaAbstractDaoListeningExecutorService impl
                 }).collect(Collectors.toList());
 
         return service.submit(() -> {
-            attributeKvRepository.delete(entitiesToDelete);
+            attributeKvRepository.deleteAll(entitiesToDelete);
             return null;
         });
     }

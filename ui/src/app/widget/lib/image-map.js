@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ const maxZoom = 4;
 
 export default class TbImageMap {
 
-    constructor(ctx, $containerElement, utils, initCallback, imageUrl, posFunction, imageEntityAlias, imageUrlAttribute) {
+    constructor(ctx, $containerElement, utils, initCallback, imageUrl, disableScrollZooming, posFunction, imageEntityAlias, imageUrlAttribute) {
 
         this.ctx = ctx;
         this.utils = utils;
@@ -34,6 +34,7 @@ export default class TbImageMap {
         this.height = 0;
         this.markers = [];
         this.initCallback = initCallback;
+        this.disableScrollZooming = disableScrollZooming;
 
         if (angular.isDefined(posFunction) && posFunction.length > 0) {
             try {
@@ -165,6 +166,7 @@ export default class TbImageMap {
             this.map = L.map(this.$containerElement[0], {
                 minZoom: 1,
                 maxZoom: maxZoom,
+                scrollWheelZoom: !this.disableScrollZooming,
                 center: center,
                 zoom: 1,
                 crs: L.CRS.Simple,
@@ -298,7 +300,7 @@ export default class TbImageMap {
         onMarkerIconReady(iconInfo);
     }
 
-    createMarker(position, settings, onClickListener, markerArgs) {
+    createMarker(position, dsIndex, settings, onClickListener, markerArgs) {
         var pos = this.posFunction(position.x, position.y);
         var x = pos.x * this.width;
         var y = pos.y * this.height;
@@ -319,7 +321,7 @@ export default class TbImageMap {
         });
 
         if (settings.displayTooltip) {
-            this.createTooltip(marker, settings.tooltipPattern, settings.tooltipReplaceInfo, settings.autocloseTooltip, markerArgs);
+            this.createTooltip(marker, dsIndex, settings, markerArgs);
         }
 
         if (onClickListener) {
@@ -348,15 +350,24 @@ export default class TbImageMap {
         }
     }
 
-    createTooltip(marker, pattern, replaceInfo, autoClose, markerArgs) {
+    createTooltip(marker, dsIndex, settings, markerArgs) {
         var popup = L.popup();
         popup.setContent('');
-        marker.bindPopup(popup, {autoClose: autoClose, closeOnClick: false});
+        marker.bindPopup(popup, {autoClose: settings.autocloseTooltip, closeOnClick: false});
+        if (settings.displayTooltipAction == 'hover') {
+            marker.off('click');
+            marker.on('mouseover', function () {
+                this.openPopup();
+            });
+            marker.on('mouseout', function () {
+                this.closePopup();
+            });
+        }
         this.tooltips.push( {
             markerArgs: markerArgs,
             popup: popup,
-            pattern: pattern,
-            replaceInfo: replaceInfo
+            locationSettings: settings,
+            dsIndex: dsIndex
         });
     }
 
@@ -368,6 +379,21 @@ export default class TbImageMap {
 
     removePolyline(/*polyline*/) {
     }
+
+	createPolygon(/*latLangs, settings*/) {
+	}
+
+	removePolygon(/*latLangs, settings*/) {
+	}
+
+	updatePolygonColor(/*latLangs, settings*/) {
+	}
+
+	getPolygonLatLngs(/*latLangs, settings*/) {
+	}
+
+	setPolygonLatLngs(/*latLangs, settings*/) {
+	}
 
     fitBounds() {
     }

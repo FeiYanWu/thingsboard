@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,14 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.ConverterRegistry;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.util.Assert;
+import org.thingsboard.server.common.data.id.EntityId;
 
 @Configuration
 @ConditionalOnProperty(prefix = "cache", value = "type", havingValue = "redis", matchIfMissing = false)
@@ -57,15 +61,12 @@ public class TBRedisCacheConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory cf) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(cf);
-        return redisTemplate;
-    }
-
-    @Bean
-    public CacheManager cacheManager(RedisTemplate redisTemplate) {
-        return new RedisCacheManager(redisTemplate);
+    public CacheManager cacheManager(RedisConnectionFactory cf) {
+        DefaultFormattingConversionService redisConversionService = new DefaultFormattingConversionService();
+        RedisCacheConfiguration.registerDefaultConverters(redisConversionService);
+        registerDefaultConverters(redisConversionService);
+        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig().withConversionService(redisConversionService);
+        return RedisCacheManager.builder(cf).cacheDefaults(configuration).build();
     }
 
     @Bean
@@ -73,5 +74,8 @@ public class TBRedisCacheConfiguration {
         return new PreviousDeviceCredentialsIdKeyGenerator();
     }
 
-
+    private static void registerDefaultConverters(ConverterRegistry registry) {
+        Assert.notNull(registry, "ConverterRegistry must not be null!");
+        registry.addConverter(EntityId.class, String.class, EntityId::toString);
+    }
 }

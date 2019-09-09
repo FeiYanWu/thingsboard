@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.thingsboard.server.common.data.Tenant;
 import org.thingsboard.server.common.data.User;
 import org.thingsboard.server.common.data.id.CustomerId;
 import org.thingsboard.server.common.data.id.TenantId;
+import org.thingsboard.server.common.data.id.UserCredentialsId;
 import org.thingsboard.server.common.data.id.UserId;
 import org.thingsboard.server.common.data.page.TextPageData;
 import org.thingsboard.server.common.data.page.TextPageLink;
@@ -176,6 +177,24 @@ public class UserServiceImpl extends AbstractEntityService implements UserServic
         return saveUserCredentials(tenantId, userCredentials);
     }
 
+    @Override
+    public UserCredentials requestExpiredPasswordReset(TenantId tenantId, UserCredentialsId userCredentialsId) {
+        UserCredentials userCredentials = userCredentialsDao.findById(tenantId, userCredentialsId.getId());
+        if (!userCredentials.isEnabled()) {
+            throw new IncorrectParameterException("Unable to reset password for inactive user");
+        }
+        userCredentials.setResetToken(RandomStringUtils.randomAlphanumeric(DEFAULT_TOKEN_LENGTH));
+        return saveUserCredentials(tenantId, userCredentials);
+    }
+
+    @Override
+    public UserCredentials replaceUserCredentials(TenantId tenantId, UserCredentials userCredentials) {
+        log.trace("Executing replaceUserCredentials [{}]", userCredentials);
+        userCredentialsValidator.validate(userCredentials, data -> tenantId);
+        userCredentialsDao.removeById(tenantId, userCredentials.getUuidId());
+        userCredentials.setId(null);
+        return userCredentialsDao.save(tenantId, userCredentials);
+    }
 
     @Override
     public void deleteUser(TenantId tenantId, UserId userId) {

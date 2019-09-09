@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.thingsboard.server.service.component.ComponentDiscoveryService;
-import org.thingsboard.server.service.install.DataUpdateService;
+import org.thingsboard.server.service.install.update.DataUpdateService;
 import org.thingsboard.server.service.install.DatabaseUpgradeService;
 import org.thingsboard.server.service.install.EntityDatabaseSchemaService;
 import org.thingsboard.server.service.install.SystemDataLoaderService;
@@ -106,6 +106,19 @@ public class ThingsboardInstallService {
 
                         databaseUpgradeService.upgradeDatabase("2.1.3");
 
+                    case "2.3.0":
+                        log.info("Upgrading ThingsBoard from version 2.3.0 to 2.3.1 ...");
+
+                        databaseUpgradeService.upgradeDatabase("2.3.0");
+
+                    case "2.3.1":
+                        log.info("Upgrading ThingsBoard from version 2.3.1 to 2.4.0 ...");
+
+                        databaseUpgradeService.upgradeDatabase("2.3.1");
+
+                    case "2.4.0":
+                        log.info("Upgrading ThingsBoard from version 2.4.0 to 2.4.1 ...");
+
                         log.info("Updating system data...");
 
                         systemDataLoaderService.deleteSystemWidgetBundle("charts");
@@ -119,6 +132,7 @@ public class ThingsboardInstallService {
                         systemDataLoaderService.deleteSystemWidgetBundle("maps_v2");
                         systemDataLoaderService.deleteSystemWidgetBundle("gateway_widgets");
                         systemDataLoaderService.deleteSystemWidgetBundle("input_widgets");
+                        systemDataLoaderService.deleteSystemWidgetBundle("date");
 
                         systemDataLoaderService.loadSystemWidgets();
 

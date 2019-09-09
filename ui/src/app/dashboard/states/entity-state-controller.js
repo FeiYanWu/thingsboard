@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2018 The Thingsboard Authors
+ * Copyright © 2016-2019 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,6 +179,9 @@ export default function EntityStateController($scope, $timeout, $location, $stat
 
     function resolveEntity(params) {
         var deferred = $q.defer();
+        if (params && params.targetEntityParamName) {
+            params = params[params.targetEntityParamName];
+        }
         if (params && params.entityId && params.entityId.id && params.entityId.entityType) {
             if (params.entityName && params.entityName.length) {
                 deferred.resolve(params.entityName);
@@ -343,7 +346,7 @@ export default function EntityStateController($scope, $timeout, $location, $stat
 
     function isEmpty(map) {
         for(var key in map) {
-            return !map.hasOwnProperty(key);
+            return !Object.prototype.hasOwnProperty.call(map, key);
         }
         return true;
     }
