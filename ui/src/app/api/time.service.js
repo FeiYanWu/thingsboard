@@ -47,6 +47,7 @@ function TimeService($translate, $http, $q, types) {
         defaultTimewindow: defaultTimewindow,
         toHistoryTimewindow: toHistoryTimewindow,
         createSubscriptionTimewindow: createSubscriptionTimewindow,
+        createTimewindowForComparison: createTimewindowForComparison,
         getMaxDatapointsLimit: function () {
             return maxDatapointsLimit;
         },
@@ -280,6 +281,9 @@ function TimeService($translate, $http, $q, types) {
 
 
         var historyTimewindow = {
+            hideInterval: timewindow.hideInterval || false,
+            hideAggregation: timewindow.hideAggregation || false,
+            hideAggInterval: timewindow.hideAggInterval || false,
             history: {
                 fixedTimewindow: {
                     startTimeMs: startTimeMs,
@@ -383,5 +387,27 @@ function TimeService($translate, $http, $q, types) {
         }
     }
 
+    function createTimewindowForComparison(subscriptionTimewindow, timeUnit) {
+        var timewindowForComparison = {
+            fixedWindow: null,
+            realtimeWindowMs: null,
+            aggregation: subscriptionTimewindow.aggregation
+        };
 
+        if (subscriptionTimewindow.realtimeWindowMs) {
+            timewindowForComparison.startTs = moment(subscriptionTimewindow.startTs).subtract(1, timeUnit).valueOf(); //eslint-disable-line
+            timewindowForComparison.realtimeWindowMs = subscriptionTimewindow.realtimeWindowMs;
+        } else if (subscriptionTimewindow.fixedWindow) {
+            var timeInterval = subscriptionTimewindow.fixedWindow.endTimeMs - subscriptionTimewindow.fixedWindow.startTimeMs;
+            var endTimeMs = moment(subscriptionTimewindow.fixedWindow.endTimeMs).subtract(1, timeUnit).valueOf(); //eslint-disable-line
+
+            timewindowForComparison.startTs = endTimeMs - timeInterval;
+            timewindowForComparison.fixedWindow = {
+                startTimeMs: timewindowForComparison.startTs,
+                endTimeMs: endTimeMs
+            };
+        }
+
+        return timewindowForComparison;
+    }
 }
