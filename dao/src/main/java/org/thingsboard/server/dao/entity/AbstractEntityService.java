@@ -46,7 +46,7 @@ public abstract class AbstractEntityService {
         log.trace("Executing deleteEntityRelations [{}]", entityId);
         relationService.deleteEntityRelations(tenantId, entityId);
     }
-
+    
     protected Optional<ConstraintViolationException> extractConstraintViolationException(Exception t) {
         if (t instanceof ConstraintViolationException) {
             return Optional.of ((ConstraintViolationException) t);

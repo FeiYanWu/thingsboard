@@ -16,7 +16,7 @@
 package org.thingsboard.server.dao.model;
 
 /**
- * The interface To dto.
+ * The interface To dto.  Data Transfer Object
  *
  * @param <T> the type parameter
  */

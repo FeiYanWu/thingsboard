@@ -87,7 +87,7 @@ public class TenantAdminPermissions extends AbstractPermissions {
 
     };
 
-    private static final PermissionChecker widgetsPermissionChecker = new PermissionChecker() {
+    private static final PermissionChecker widgetsPermissionChecker =   new PermissionChecker() {
 
         @Override
         public boolean hasPermission(SecurityUser user, Operation operation, EntityId entityId, HasTenantId entity) {

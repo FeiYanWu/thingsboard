@@ -98,7 +98,7 @@ plugins:
 security:
   # JWT Token parameters
   jwt:
-    tokenExpirationTime: "${JWT_TOKEN_EXPIRATION_TIME:9000}" # Number of seconds (2.5 hours)
+    tokenExpirationTime: "${JWT_TOKEN_EXPIRATION_TIME:60}" # Number of seconds (2.5 hours)
     refreshTokenExpTime: "${JWT_REFRESH_TOKEN_EXPIRATION_TIME:604800}" # Number of seconds (1 week)
     tokenIssuer: "${JWT_TOKEN_ISSUER:thingsboard.io}"
     tokenSigningKey: "${JWT_TOKEN_SIGNING_KEY:thingsboardDefaultSigningKey}"
@@ -375,12 +375,16 @@ spring:
     open-in-view: "false"
     hibernate:
       ddl-auto: "none"
-    database-platform: "${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}"
+#    database-platform: "${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}"
+    database-platform: "${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.MySQL5Dialect}"
   datasource:
-    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"
-    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/thingsboard}"
-    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
-    password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
+#    driverClassName: "${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}"
+#    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/thingsboard}"
+#    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
+    driverClassName: "${SPRING_DRIVER_CLASS_NAME:com.mysql.jdbc.Driver}"
+    url: "${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/thingsboard?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC}"
+    username: "${SPRING_DATASOURCE_USERNAME:root}"
+    password: "${SPRING_DATASOURCE_PASSWORD:1234}"
     hikari:
       maximumPoolSize: "${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:50}"
 
