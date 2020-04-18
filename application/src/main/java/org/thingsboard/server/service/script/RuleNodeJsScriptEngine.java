@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2019 The Thingsboard Authors
+ * Copyright © 2016-2020 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.thingsboard.server.common.data.id.EntityId;
@@ -121,7 +122,7 @@ public class RuleNodeJsScriptEngine implements org.thingsboard.rule.engine.api.S
             } else {
                 return Futures.immediateFuture(unbindMsg(json, msg));
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
@@ -174,7 +175,7 @@ public class RuleNodeJsScriptEngine implements org.thingsboard.rule.engine.api.S
             } else {
                 return Futures.immediateFuture(json.asBoolean());
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override
@@ -232,7 +233,7 @@ public class RuleNodeJsScriptEngine implements org.thingsboard.rule.engine.api.S
                             return Futures.immediateFailedFuture(new ScriptException(e));
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
     }
 
     public void destroy() {

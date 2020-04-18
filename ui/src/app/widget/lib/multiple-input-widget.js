@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2019 The Thingsboard Authors
+ * Copyright © 2016-2020 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,6 +225,7 @@ function MultipleInputWidgetController($q, $scope, $translate, attributeService,
         if (!vm.isVerticalAlignment && vm.settings.fieldsInRow) {
             vm.inputWidthSettings = 100 / vm.settings.fieldsInRow + '%';
         }
+        updateWidgetDisplaying();
     }
 
     function updateDatasources() {

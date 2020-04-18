@@ -1,5 +1,5 @@
 --
--- Copyright © 2016-2019 The Thingsboard Authors
+-- Copyright © 2016-2020 The Thingsboard Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -410,6 +410,7 @@ CREATE TABLE IF NOT EXISTS thingsboard.attributes_kv_cf (
     str_v text,
     long_v bigint,
     dbl_v double,
+    json_v text,
     last_update_ts bigint,
     PRIMARY KEY ((entity_type, entity_id, attribute_type), attribute_key)
 ) WITH compaction = { 'class' :  'LeveledCompactionStrategy'  };

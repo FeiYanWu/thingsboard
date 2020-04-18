@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2019 The Thingsboard Authors
+ * Copyright © 2016-2020 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -397,10 +397,19 @@ export default angular.module('thingsboard.types', [])
                 accessToken: {
                     name: 'import.column-type.access-token',
                     value: 'ACCESS_TOKEN'
+                },
+                isGateway: {
+                    name: 'import.column-type.isgateway',
+                    value: 'gateway'
+                },
+                description: {
+                    name: 'import.column-type.description',
+                    value: 'description'
                 }
             },
             aliasEntityType: {
-                current_customer: "CURRENT_CUSTOMER"
+                current_customer: "CURRENT_CUSTOMER",
+                current_tenant: "CURRENT_TENANT"
             },
             entityTypeTranslations: {
                 "DEVICE": {
@@ -466,6 +475,10 @@ export default angular.module('thingsboard.types', [])
                 "CURRENT_CUSTOMER": {
                     type: 'entity.type-current-customer',
                     list: 'entity.type-current-customer'
+                },
+                "CURRENT_TENANT": {
+                    type: 'entity.type-current-tenant',
+                    list: 'entity.type-current-tenant'
                 }
             },
             entityField: {
@@ -583,6 +596,32 @@ export default angular.module('thingsboard.types', [])
                 mqtt: "MQTT",
                 opc: "OPC UA",
                 modbus: "MODBUS"
+            },
+            gatewayConfigType: {
+                mqtt:  {
+                    value: "mqtt",
+                    name: "MQTT"
+                },
+                modbus:  {
+                    value: "modbus",
+                    name: "Modbus"
+                },
+                opc_ua:  {
+                    value: "opcua",
+                    name: "OPC-UA"
+                },
+                ble:  {
+                    value: "ble",
+                    name: "BLE"
+                }
+            },
+            gatewayLogLevel: {
+                none: "NONE",
+                critical: "CRITICAL",
+                error: "ERROR",
+                warning: "WARNING",
+                info: "INFO",
+                debug: "DEBUG"
             },
             extensionValueType: {
                 string: 'value.string',
@@ -847,6 +886,11 @@ export default angular.module('thingsboard.types', [])
                     value: "boolean",
                     name: "value.boolean",
                     icon: "mdi:checkbox-marked-outline"
+                },
+                json: {
+                    value: "json",
+                    name: "value.json",
+                    icon: "mdi:json"
                 }
             },
             widgetType: {

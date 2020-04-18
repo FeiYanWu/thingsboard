@@ -1,5 +1,5 @@
 /**
- * Copyright © 2016-2019 The Thingsboard Authors
+ * Copyright © 2016-2020 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,6 +199,7 @@ public class AuthController extends BaseController {
     @ResponseBody
     public JsonNode activateUser(
             @RequestBody JsonNode activateRequest,
+            @RequestParam(required = false, defaultValue = "true") boolean sendActivationMail,
             HttpServletRequest request) throws ThingsboardException {
         try {
             String activateToken = activateRequest.get("activateToken").asText();
@@ -213,10 +214,12 @@ public class AuthController extends BaseController {
             String loginUrl = String.format("%s/login", baseUrl);
             String email = user.getEmail();
 
-            try {
-                mailService.sendAccountActivatedEmail(loginUrl, email);
-            } catch (Exception e) {
-                log.info("Unable to send account activation email [{}]", e.getMessage());
+            if (sendActivationMail) {
+                try {
+                    mailService.sendAccountActivatedEmail(loginUrl, email);
+                } catch (Exception e) {
+                    log.info("Unable to send account activation email [{}]", e.getMessage());
+                }
             }
 
             JwtToken accessToken = tokenFactory.createAccessJwtToken(securityUser);

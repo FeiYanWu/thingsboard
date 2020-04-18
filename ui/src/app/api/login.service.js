@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2019 The Thingsboard Authors
+ * Copyright © 2016-2020 The Thingsboard Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,9 +85,12 @@ function LoginService($http, $q) {
         return deferred.promise;
     }
 
-    function activate(activateToken, password) {
+    function activate(activateToken, password, sendActivationMail) {
         var deferred = $q.defer();
         var url = '/api/noauth/activate';
+        if(sendActivationMail === true || sendActivationMail === false) {
+            url += '?sendActivationMail=' + sendActivationMail;
+        }
         $http.post(url, {activateToken: activateToken, password: password}).then(function success(response) {
             deferred.resolve(response);
         }, function fail() {
